@@ -8,9 +8,13 @@ cd sih_draft
 Start Python Server
 Ensure the Python server is running:
 
+Backend for overcoming cors policy 
+
 ```bash
 python cors_server.py
 ```
+In another seperate terminal
+
 Run the App
 
 ```bash
