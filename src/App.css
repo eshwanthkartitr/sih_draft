@@ -1,0 +1,71 @@
+* {
+  border: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --hue: 223;
+  --bg: hsl(var(--hue),10%,90%);
+  --fg: hsl(var(--hue),10%,10%);
+  --switch-dev: hsl(223,90%,50%);
+  --switch-des: hsl(283,90%,70%);
+  --trans-dur: 0.3s;
+  --trans-timing: cubic-bezier(0.65,0,0.35,1);
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+}
+
+.switch__button {
+  background-color: var(--switch-dev);
+  width: 3em;
+  height: 1.5em;
+  position: relative;
+  transition: background-color var(--trans-dur), box-shadow var(--trans-dur);
+}
+
+.switch__button:before {
+  content: "";
+  background-color: white;
+  width: 1em;
+  height: 1em;
+  position: absolute;
+  top: 0.25em;
+  left: 0.25em;
+  transition: transform var(--trans-dur);
+}
+
+.switch__button[aria-labelledby="creator"] {
+  background-color: var(--switch-des);
+}
+
+.switch__button[aria-labelledby="creator"]:before {
+  transform: translateX(1.5em);
+}
+
+.zoom-effect {
+  animation: zoom-out 1s forwards;
+}
+
+@keyframes zoom-out {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(10);
+    opacity: 0;
+  }
+}
