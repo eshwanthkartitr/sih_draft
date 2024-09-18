@@ -2,7 +2,7 @@
 
 ### Clone the Repo
 ```bash
-git clone sih_draft
+git clone https://github.com/eshwanthkartitr/sih_draft.git
 cd sih_draft
 ```
 Start Python Server
