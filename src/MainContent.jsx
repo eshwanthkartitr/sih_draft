@@ -209,7 +209,7 @@ const MainContent = () => {
           <img className="image" src="https://5.imimg.com/data5/DC/JK/KX/ANDROID-110649032/product-jpeg-500x500.jpg" alt="Image 3" />
         </div>
         <div className="card">
-          <img className="image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6qFnC-wljMBOpqwozJ25FlF1OrQPx2m7TzA&s" alt="Image 4" />
+          <img className="image" src="https://static3.depositphotos.com/1005732/201/i/450/depositphotos_2012642-stock-photo-architecture-plans.jpg" alt="Image 4" />
         </div>
         <div className="card">
           <img className="image" src="https://img.freepik.com/premium-photo/photo-construction-blueprint-plans-high-quality-details-8k-full-ultra-hd-ar-169-job-id-e7b4b3ee3fe4419ea287c042fb442914_1056572-35988.jpg" alt="Image 5" />
