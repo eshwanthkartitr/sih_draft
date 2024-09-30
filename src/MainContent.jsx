@@ -7,8 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 
 // Import your assets
-import houseMtl from '../assets/house.mtl?url';
-import houseObj from '../assets/house.obj?url';
+import houseMtl from './assets/house.mtl?url';
+import houseObj from './assets/house.obj?url';
 
 const MainContent = () => {
   const mountRef = useRef(null);
