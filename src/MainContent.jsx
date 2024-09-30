@@ -171,98 +171,94 @@ const MainContent = () => {
     }
   };
 
+  useEffect(() => {
+    setTimeout(() => {
+      gsap.to('.cards-container', {
+        x: '-400%',
+        duration: 1,
+        onComplete: () => {
+          gsap.to('.arrow', { opacity: 1, duration: 0.5 });
+          gsap.to(containerRef.current, { opacity: 1, duration: 5 });
+        }
+      });
+    }, 500);
+
+    setTimeout(() => {
+      gsap.to('.arrow', { transform: 'translateY(-60%)', duration: 1 });
+      gsap.to(containerRef.current, { transform: 'translateX(500%)', duration: 1, opacity: 1 });
+    }, 2000);
+  }, []);
+
   const initScrollAnimation = () => {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '.main-content',
-        start: 'top top',
-        end: 'bottom top',
-        scrub: 1,
-        pin: true,
-        anticipatePin: 1,
-      },
-    });
-
-    tl.to('.cards-container', {
-      x: '-400%',
-      ease: 'power2.inOut',
-      duration: 3,
-    })
-    .to('.arrow', {
-      opacity: 1,
-      duration: 1,
-    }, '-=1')
-    .to(containerRef.current, {
-      opacity: 1,
-      duration: 2,
-    }, '-=1')
-    .to('.arrow', {
-      y: '-60%',
-      duration: 1,
-    })
-    .to(containerRef.current, {
-      x: '500%',
-      duration: 2,
-      onComplete: () => {
-        gsap.to('.transition-overlay', {
-          y: '0%',
-          duration: 1,
-          ease: 'power2.inOut',
-          onComplete: () => {
-            navigate('/file-input');
-          },
-        });
-      },
-    });
-
     ScrollTrigger.create({
       trigger: '.main-content',
       start: 'bottom bottom',
       onEnter: () => {
-        gsap.to('.transition-overlay', {
-          y: '0%',
-          duration: 1,
-          ease: 'power2.inOut',
-          onComplete: () => {
-            navigate('/file-input');
-          },
-        });
+        handleTransition();
       },
     });
   };
 
+  const handleTransition = () => {
+    gsap.to('.main-content', {
+      y: '-100%',
+      duration: 1,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        navigate('/file-input');
+      }
+    });
+  };
+
+  const handleArrowClick = () => {
+    handleTransition();
+  };
+
   return (
-    <>
-      <div className="main-content">
-        <div className="cards-container">
-          <div className="card">
-            <img className="image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRv7dDEpXoR1_z_Tu1z6vIshqz6K3loYcAnnA&s" alt="Image 1" />
-          </div>
-          <div className="card">
-            <img className="image" src="https://d11ovvaxdf1k5p.cloudfront.net/Black_White_Service_087e3f349c.webp" alt="Image 2" />
-          </div>
-          <div className="card">
-            <img className="image" src="https://5.imimg.com/data5/DC/JK/KX/ANDROID-110649032/product-jpeg-500x500.jpg" alt="Image 3" />
-          </div>
-          <div className="card">
-            <img className="image" src="https://static3.depositphotos.com/1005732/201/i/450/depositphotos_2012642-stock-photo-architecture-plans.jpg" alt="Image 4" />
-          </div>
-          <div className="card">
-            <img className="image" src="https://img.freepik.com/premium-photo/photo-construction-blueprint-plans-high-quality-details-8k-full-ultra-hd-ar-169-job-id-e7b4b3ee3fe4419ea287c042fb442914_1056572-35988.jpg" alt="Image 5" />
-          </div>
+    <div className="main-content">
+      <div className="cards-container">
+        <div className="card">
+          <img className="image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRv7dDEpXoR1_z_Tu1z6vIshqz6K3loYcAnnA&s" alt="Image 1" />
         </div>
-        <div className="arrow" style={{ opacity: 0 }}>→</div>
-        <div ref={containerRef} className="three-container" style={{ opacity: 0 }}>
-          {isLoading && (
-            <div className="loading-overlay">
-              <div className="spinner"></div>
-              <p>Loading 3D Model: {loadingProgress.toFixed(2)}%</p>
-            </div>
-          )}
+        <div className="card">
+          <img className="image" src="https://d11ovvaxdf1k5p.cloudfront.net/Black_White_Service_087e3f349c.webp" alt="Image 2" />
+        </div>
+        <div className="card">
+          <img className="image" src="https://5.imimg.com/data5/DC/JK/KX/ANDROID-110649032/product-jpeg-500x500.jpg" alt="Image 3" />
+        </div>
+        <div className="card">
+          <img className="image" src="https://static3.depositphotos.com/1005732/201/i/450/depositphotos_2012642-stock-photo-architecture-plans.jpg" alt="Image 4" />
+        </div>
+        <div className="card">
+          <img className="image" src="https://img.freepik.com/premium-photo/photo-construction-blueprint-plans-high-quality-details-8k-full-ultra-hd-ar-169-job-id-e7b4b3ee3fe4419ea287c042fb442914_1056572-35988.jpg" alt="Image 5" />
         </div>
       </div>
-      <div className="transition-overlay"></div>
-    </>
+      <div className="arrow" style={{ opacity: 0 }}>→</div>
+      <div 
+        className="down-arrow" 
+        onClick={handleArrowClick} 
+        style={{ 
+          opacity: 1, 
+          cursor: 'pointer', 
+          position: 'absolute', 
+          bottom: '10px', 
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontSize: '2em',
+          animation: 'bounce 2s infinite'
+        }}
+      >
+        ↓
+      </div>
+      <div ref={containerRef} className="three-container" style={{ opacity: 0 }}>
+        {isLoading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+            <p>Loading 3D Model: {loadingProgress.toFixed(2)}%</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
