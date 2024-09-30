@@ -27,7 +27,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 300vh; /* Increased height to allow for scrolling */
+  height: 100vh;
   padding: 20px;
   position: relative;
   overflow-x: hidden;
