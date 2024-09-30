@@ -106,7 +106,8 @@ const FileInput = () => {
               onTimeUpdate={handleVideoTimeUpdate}
               onEnded={handleVideoEnd}
             >
-              <source src="/assets/sample_video.mp4" type="video/mp4" />
+              alert("Sample video should get displayed")
+              <source src="./assets/sample_video.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
             <div className="processing-tips">
