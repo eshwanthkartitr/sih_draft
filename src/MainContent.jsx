@@ -6,44 +6,25 @@ import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { useNavigate } from 'react-router-dom';
-import houseMtl from './assets/house.mtl';
-import houseObj from './assets/house.obj';
+
+// Import your assets
+import houseMtl from '../assets/house.mtl?url';
+import houseObj from '../assets/house.obj?url';
 
 const MainContent = () => {
-  const containerRef = useRef(null);
-  const modelRef = useRef(null);
-  const isDragging = useRef(false);
-  const previousMousePosition = useRef({ x: 0, y: 0 });
+  const mountRef = useRef(null);
   const navigate = useNavigate();
-  const cameraRef = useRef(null);
 
   useEffect(() => {
-    createIcons({ icons });
-
-    // Ensure elements are present before starting the animation
-    const cards = document.querySelectorAll('.card');
-    if (cards.length > 0) {
-      gsap.fromTo(
-        cards,
-        { scale: 0, opacity: 0, x: () => Math.random() * 200 - 100, y: () => Math.random() * 200 - 100 },
-        { scale: 1, opacity: 1, x: 0, y: 0, stagger: 0.1, ease: "elastic.out(1, 0.8)", duration: 1 }
-      );
-    }
-
-    // Initialize 3D scene
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-    cameraRef.current = camera;
-    const renderer = new THREE.WebGLRenderer({ alpha: true }); // Enable transparency
-    renderer.setSize(window.innerWidth / 2, window.innerHeight); // Adjust size to fit right side
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
 
-    if (containerRef.current) {
-      containerRef.current.appendChild(renderer.domElement);
-    }
-
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    mountRef.current.appendChild(renderer.domElement);
 
     // Add lighting
-    const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
+    const ambientLight = new THREE.AmbientLight(0x404040);
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -52,44 +33,38 @@ const MainContent = () => {
 
     // Load the MTL file
     const mtlLoader = new MTLLoader();
-    mtlLoader.load(houseMtl, (materials) => {
-      materials.preload();
+    mtlLoader.load(
+      houseMtl,
+      (materials) => {
+        materials.preload();
 
-      // Load the OBJ file
-      const objLoader = new OBJLoader();
-      objLoader.setMaterials(materials);
-      objLoader.load(
-        houseObj,
-        (object) => {
-          scene.add(object);
-          object.position.set(0, 0, 0);
-          object.scale.set(0.05, 0.05, 0.05); // Scale the model by a lot
+        // Load the OBJ file
+        const objLoader = new OBJLoader();
+        objLoader.setMaterials(materials);
+        objLoader.load(
+          houseObj,
+          (object) => {
+            scene.add(object);
+            object.position.set(0, 0, 0);
+            object.scale.set(0.05, 0.05, 0.05); // Scale the model
+          },
+          (xhr) => {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+          },
+          (error) => {
+            console.error('Error loading OBJ file:', error);
+          }
+        );
+      },
+      (xhr) => {
+        console.log((xhr.loaded / xhr.total * 100) + '% MTL loaded');
+      },
+      (error) => {
+        console.error('Error loading MTL file:', error);
+      }
+    );
 
-          // Add simple rotation animation to the model
-          gsap.to(object.rotation, {
-            y: Math.PI * 2,
-            duration: 20,
-            ease: "none",
-            repeat: -1
-          });
-        },
-        (xhr) => {
-          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        (error) => {
-          console.error('Error loading OBJ file:', error);
-        }
-      );
-    }, 
-    (xhr) => {
-      console.log((xhr.loaded / xhr.total * 100) + '% MTL loaded');
-    },
-    (error) => {
-      console.error('Error loading MTL file:', error);
-    });
-
-
-    camera.position.z = 50; // Adjust camera position to fit the scaled model
+    camera.position.z = 5;
 
     const animate = () => {
       requestAnimationFrame(animate);
@@ -98,121 +73,19 @@ const MainContent = () => {
 
     animate();
 
-    // Event listeners for interaction
-    const onMouseDown = (event) => {
-      isDragging.current = true;
-      previousMousePosition.current = {
-        x: event.clientX,
-        y: event.clientY
-      };
-    };
-
-    const onMouseMove = (event) => {
-      if (isDragging.current && modelRef.current) {
-        const deltaMove = {
-          x: event.clientX - previousMousePosition.current.x,
-          y: event.clientY - previousMousePosition.current.y
-        };
-
-        const rotationSpeed = 0.005;
-        modelRef.current.rotation.y += deltaMove.x * rotationSpeed;
-        modelRef.current.rotation.x += deltaMove.y * rotationSpeed;
-
-        previousMousePosition.current = {
-          x: event.clientX,
-          y: event.clientY
-        };
-      }
-    };
-
-    const onMouseUp = () => {
-      isDragging.current = false;
-    };
-
-    const onMouseOut = () => {
-      isDragging.current = false;
-    };
-
-    const onWheel = (event) => {
-      if (cameraRef.current) {
-        cameraRef.current.position.z += event.deltaY * 0.01;
-      }
-    };
-
-    if (containerRef.current) {
-      containerRef.current.addEventListener('mousedown', onMouseDown);
-      containerRef.current.addEventListener('mousemove', onMouseMove);
-      containerRef.current.addEventListener('mouseup', onMouseUp);
-      containerRef.current.addEventListener('mouseout', onMouseOut);
-      containerRef.current.addEventListener('wheel', onWheel);
-    }
-
-    // Move images to the left after 2 seconds
-    setTimeout(() => {
-      gsap.to('.cards-container', {
-        x: '-400%',
-        duration: 1,
-        onComplete: () => {
-          gsap.to('.arrow', { opacity: 1, duration: 0.5 });
-          gsap.to(containerRef.current, { opacity: 1, duration: 5 });
-        }
-      });
-    }, 500);
-
-    setTimeout(() => {
-        gsap.to('.arrow', { transform: 'translateY(-60%)', duration: 1 });
-        gsap.to(containerRef.current, { transform: 'translateX(500%)', duration: 1,opacity: 1});
-      }, 2000);
-
     return () => {
-      if (containerRef.current) {
-        containerRef.current.removeChild(renderer.domElement);
-        containerRef.current.removeEventListener('mousedown', onMouseDown);
-        containerRef.current.removeEventListener('mousemove', onMouseMove);
-        containerRef.current.removeEventListener('mouseup', onMouseUp);
-        containerRef.current.removeEventListener('mouseout', onMouseOut);
-        containerRef.current.removeEventListener('wheel', onWheel);
-      }
+      mountRef.current.removeChild(renderer.domElement);
     };
   }, []);
 
-
-  const handleArrowClick = () => {
-    gsap.to('.main-content', {
-      y: '-100%',
-      duration: 1,
-      ease: 'power2.inOut',
-      onComplete: () => {
-        navigate('/file-input');
-      }
-    });
-  };
+  // ... rest of your component code
 
   return (
     <div className="main-content">
-      <div className="cards-container">
-        <div className="card">
-          <img className="image" src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=500&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Image 1" />
-        </div>
-        <div className="card">
-          <img className="image" src="https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Image 2" />
-        </div>
-        <div className="card">
-          <img className="image" src="https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Image 3" />
-        </div>
-        <div className="card">
-          <img className="image" src="https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Image 4" />
-        </div>
-        <div className="card">
-          <img className="image" src="https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Image 5" />
-        </div>
-      </div>
-      <div className="arrow" style={{ opacity: 0 }}>→</div>
-      <div className="down-arrow" onClick={handleArrowClick} style={{ opacity: 1, cursor: 'pointer', position: 'absolute', bottom: '10px', fontSize: '2em' }}>↓</div>
-      <div ref={containerRef} className="three-container" style={{ opacity: 0 }}></div>
+      {/* ... other elements */}
+      <div ref={mountRef} className="three-container" style={{ opacity: 0 }}></div>
     </div>
   );
 };
-
 
 export default MainContent;
