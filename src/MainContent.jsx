@@ -49,14 +49,14 @@ const MainContent = () => {
 
     // Load the MTL file
     const mtlLoader = new MTLLoader();
-    mtlLoader.load('http://localhost:8000/house.mtl', (materials) => {
+    mtlLoader.load('./assets/house.mtl', (materials) => {
       materials.preload();
 
       // Load the OBJ file
       const objLoader = new OBJLoader();
       objLoader.setMaterials(materials);
       objLoader.load(
-        'http://localhost:8000/house.obj', // Replace with the URL to your OBJ file
+        './assets/house.obj', // Replace with the URL to your OBJ file
         (object) => {
           modelRef.current = object;
           scene.add(object);
