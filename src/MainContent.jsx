@@ -5,13 +5,10 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
-import axios from 'axios'; // Make sure to install axios: npm install axios
 
 // Import your assets
 import houseMtl from '../assets/house.mtl?url';
 import houseObj from '../assets/house.obj?url';
-
-const UNSPLASH_ACCESS_KEY = 'YOUR_UNSPLASH_ACCESS_KEY_HERE'; // Replace with your actual Unsplash API key
 
 const MainContent = () => {
   const mountRef = useRef(null);
@@ -20,24 +17,9 @@ const MainContent = () => {
   const rendererRef = useRef(null);
   const modelRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [blueprints, setBlueprints] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch blueprint images
-    const fetchBlueprints = async () => {
-      try {
-        const response = await axios.get(
-          `https://api.unsplash.com/photos/random?query=blueprint&count=5&client_id=${UNSPLASH_ACCESS_KEY}`
-        );
-        setBlueprints(response.data);
-      } catch (error) {
-        console.error('Error fetching blueprints:', error);
-      }
-    };
-
-    fetchBlueprints();
-
     // Scene setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -146,11 +128,21 @@ const MainContent = () => {
   return (
     <div className="main-content">
       <div className="cards-container">
-        {blueprints.map((blueprint, index) => (
-          <div key={blueprint.id} className="card">
-            <img className="image" src={blueprint.urls.small} alt={`Blueprint ${index + 1}`} />
-          </div>
-        ))}
+        <div className="card">
+          <img className="image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRv7dDEpXoR1_z_Tu1z6vIshqz6K3loYcAnnA&s" alt="Image 1" />
+        </div>
+        <div className="card">
+          <img className="image" src="https://wpmedia.roomsketcher.com/content/uploads/2022/01/27111154/Profile_Black-2D_Floor_Plan.jpg" alt="Image 2" />
+        </div>
+        <div className="card">
+          <img className="image" src="https://5.imimg.com/data5/DC/JK/KX/ANDROID-110649032/product-jpeg-500x500.jpg" alt="Image 3" />
+        </div>
+        <div className="card">
+          <img className="image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6qFnC-wljMBOpqwozJ25FlF1OrQPx2m7TzA&s" alt="Image 4" />
+        </div>
+        <div className="card">
+          <img className="image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoGrUKiFTzS1orStk5Fymcd9OdH_YDx5RLiA&s" alt="Image 5" />
+        </div>
       </div>
       <div className="arrow" style={{ opacity: 0 }}>→</div>
       <div className="down-arrow" onClick={handleArrowClick} style={{ opacity: 1, cursor: 'pointer', position: 'absolute', bottom: '10px', fontSize: '2em' }}>↓</div>
