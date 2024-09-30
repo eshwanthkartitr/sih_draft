@@ -27,10 +27,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 300vh;
   padding: 20px;
   position: relative;
-  overflow-x: hidden;
 }
 
 .cards-container {
