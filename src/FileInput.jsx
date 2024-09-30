@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './FileInput.css';
+import * as THREE from 'three';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 
 const tips = [
   "Tip: Don't forget to water your plants!",
@@ -58,33 +61,42 @@ const FileInput = () => {
       setIsProcessing(true);
       setError(null);
 
-      const formData = new FormData();
-      formData.append('image', file);
+      // Simulate processing delay
+      setTimeout(() => {
+        // Create a simple cube as a placeholder 3D model
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
 
-      try {
-        const response = await fetch('http://localhost:8000/process-image', {
-          method: 'POST',
-          body: formData,
+        // Convert the cube to OBJ format
+        const exporter = new THREE.OBJExporter();
+        const objData = exporter.parse(cube);
+
+        // Create a simple MTL content
+        const mtlData = `
+newmtl Material
+Ns 323.999994
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+        `.trim();
+
+        // Create Blob URLs for the OBJ and MTL data
+        const objBlob = new Blob([objData], { type: 'text/plain' });
+        const mtlBlob = new Blob([mtlData], { type: 'text/plain' });
+
+        setModelFiles({
+          obj: URL.createObjectURL(objBlob),
+          mtl: URL.createObjectURL(mtlBlob)
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setModelFiles({
-            obj: `http://localhost:8000${data.objFileUrl}`,
-            mtl: `http://localhost:8000${data.mtlFileUrl}`
-          });
-        } else {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        setError(`Failed to process image: ${error.message}. Please try again.`);
-      } finally {
-        setTimeout(() => {
-          setIsProcessing(false);
-          setVideoEnded(true);
-        }, 9000);
-      }
+        setIsProcessing(false);
+        setVideoEnded(true);
+      }, 9000); // Simulating 9 seconds of processing time
     } else {
       setError('Please upload a valid image file.');
     }
@@ -133,7 +145,7 @@ const FileInput = () => {
               onTimeUpdate={handleVideoTimeUpdate}
               onEnded={handleVideoEnd}
             >
-              <source src="/sample_video.mp4" type="video/mp4" />
+              <source src="../sample_video.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
             <div className="processing-tips">
