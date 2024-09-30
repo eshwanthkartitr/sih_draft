@@ -9,10 +9,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name.endsWith('.obj') || assetInfo.name.endsWith('.mtl')) {
-            return 'assets/[name][extname]';
+          const info = assetInfo.name.split('.');
+          const extType = info[info.length - 1];
+          if (/\.(obj|mtl)$/i.test(assetInfo.name)) {
+            return `assets/models/[name]-[hash][extname]`;
           }
-          return 'assets/[name]-[hash][extname]';
+          return `assets/[name]-[hash][extname]`;
         },
       },
     },
