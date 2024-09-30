@@ -61,7 +61,7 @@ const FileInput = () => {
       setTimeout(() => {
         setIsProcessing(false);
         setVideoEnded(true);
-      }, 9000);
+      }, 10000);
     } else {
       setError('Please upload a valid image file.');
     }
@@ -103,11 +103,11 @@ const FileInput = () => {
               className="processing-video"
               autoPlay
               muted
+              playsInline
               onTimeUpdate={handleVideoTimeUpdate}
               onEnded={handleVideoEnd}
             >
-              alert("Sample video should get displayed")
-              <source src="./assets/sample_video.mp4" type="video/mp4" />
+              <source src="/assets/sample_video.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
             <div className="processing-tips">
