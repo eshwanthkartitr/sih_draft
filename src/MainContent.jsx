@@ -6,6 +6,8 @@ import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { useNavigate } from 'react-router-dom';
+import houseMtl from '../assets/house.mtl?url';
+import houseObj from '../assets/house.obj?url';
 
 const MainContent = () => {
   const containerRef = useRef(null);
@@ -49,16 +51,15 @@ const MainContent = () => {
 
     // Load the MTL file
     const mtlLoader = new MTLLoader();
-    mtlLoader.load('./src/assets/house.mtl', (materials) => {
+    mtlLoader.load(houseMtl, (materials) => {
       materials.preload();
 
       // Load the OBJ file
       const objLoader = new OBJLoader();
       objLoader.setMaterials(materials);
       objLoader.load(
-        '../src/assets/house.mtl', // Replace with the URL to your OBJ file
+        houseObj,
         (object) => {
-          modelRef.current = object;
           scene.add(object);
           object.position.set(0, 0, 0);
           object.scale.set(0.05, 0.05, 0.05); // Scale the model by a lot
@@ -71,11 +72,19 @@ const MainContent = () => {
             repeat: -1
           });
         },
-        undefined,
+        (xhr) => {
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
         (error) => {
-          console.error('An error happened', error);
+          console.error('Error loading OBJ file:', error);
         }
       );
+    }, 
+    (xhr) => {
+      console.log((xhr.loaded / xhr.total * 100) + '% MTL loaded');
+    },
+    (error) => {
+      console.error('Error loading MTL file:', error);
     });
 
     camera.position.z = 50; // Adjust camera position to fit the scaled model
