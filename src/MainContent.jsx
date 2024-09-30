@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './MainContent.css';
 import { gsap } from 'gsap';
 import { createIcons, icons } from 'lucide';
@@ -7,6 +7,10 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { useNavigate } from 'react-router-dom';
 
+// Import your assets
+import houseMtl from './assets/house.mtl?url';
+import houseObj from './assets/house.obj?url';
+
 const MainContent = () => {
   const containerRef = useRef(null);
   const modelRef = useRef(null);
@@ -14,6 +18,7 @@ const MainContent = () => {
   const previousMousePosition = useRef({ x: 0, y: 0 });
   const navigate = useNavigate();
   const cameraRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     createIcons({ icons });
@@ -49,19 +54,19 @@ const MainContent = () => {
 
     // Load the MTL file
     const mtlLoader = new MTLLoader();
-    mtlLoader.load('./assets/house.mtl', (materials) => {
+    mtlLoader.load(houseMtl, (materials) => {
       materials.preload();
 
       // Load the OBJ file
       const objLoader = new OBJLoader();
       objLoader.setMaterials(materials);
       objLoader.load(
-        './assets/house.obj', // Replace with the URL to your OBJ file
+        houseObj,
         (object) => {
           modelRef.current = object;
           scene.add(object);
           object.position.set(0, 0, 0);
-          object.scale.set(0.05, 0.05, 0.05); // Scale the model by a lot
+          object.scale.set(0.05, 0.05, 0.05); // Scale the model
 
           // Add simple rotation animation to the model
           gsap.to(object.rotation, {
@@ -70,10 +75,15 @@ const MainContent = () => {
             ease: "none",
             repeat: -1
           });
+
+          setIsLoading(false); // Set loading to false when the model is loaded
         },
-        undefined,
+        (xhr) => {
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
         (error) => {
           console.error('An error happened', error);
+          setIsLoading(false); // Set loading to false even if there's an error
         }
       );
     });
@@ -149,9 +159,9 @@ const MainContent = () => {
     }, 500);
 
     setTimeout(() => {
-        gsap.to('.arrow', { transform: 'translateY(-60%)', duration: 1 });
-        gsap.to(containerRef.current, { transform: 'translateX(500%)', duration: 1,opacity: 1});
-      }, 2000);
+      gsap.to('.arrow', { transform: 'translateY(-60%)', duration: 1 });
+      gsap.to(containerRef.current, { transform: 'translateX(500%)', duration: 1, opacity: 1 });
+    }, 2000);
 
     return () => {
       if (containerRef.current) {
@@ -179,7 +189,7 @@ const MainContent = () => {
   return (
     <div className="main-content">
       <div className="cards-container">
-      <div className="card">
+        <div className="card">
           <img className="image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRv7dDEpXoR1_z_Tu1z6vIshqz6K3loYcAnnA&s" alt="Image 1" />
         </div>
         <div className="card">
@@ -197,7 +207,14 @@ const MainContent = () => {
       </div>
       <div className="arrow" style={{ opacity: 0 }}>→</div>
       <div className="down-arrow" onClick={handleArrowClick} style={{ opacity: 1, cursor: 'pointer', position: 'absolute', bottom: '10px', fontSize: '2em' }}>↓</div>
-      <div ref={containerRef} className="three-container" style={{ opacity: 0 }}></div>
+      <div ref={containerRef} className="three-container" style={{ opacity: 0 }}>
+        {isLoading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+            <p>Loading 3D Model...</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
