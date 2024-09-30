@@ -27,9 +27,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 300vh; /* Increased height to allow for scrolling */
   padding: 20px;
   position: relative;
+  overflow-x: hidden;
 }
 
 .cards-container {
@@ -168,4 +169,15 @@ body {
 .links .icon {
   height: 16px;
   width: 16px;
+}
+
+.transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  transform: translateY(100%);
+  z-index: 1000;
 }
