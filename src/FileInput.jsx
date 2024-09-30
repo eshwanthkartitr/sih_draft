@@ -145,7 +145,7 @@ illum 2
               onTimeUpdate={handleVideoTimeUpdate}
               onEnded={handleVideoEnd}
             >
-              <source src="../sample_video.mp4" type="video/mp4" />
+              <source src="./assets/sample_video.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
             <div className="processing-tips">
