@@ -207,14 +207,6 @@ const MainContent = () => {
       </div>
       <div className="arrow" style={{ opacity: 0 }}>→</div>
       <div className="down-arrow" onClick={handleArrowClick} style={{ opacity: 1, cursor: 'pointer', position: 'absolute', bottom: '10px', fontSize: '2em' }}>↓</div>
-      <div ref={containerRef} className="three-container" style={{ opacity: 0 }}>
-        {isLoading && (
-          <div className="loading-overlay">
-            <div className="spinner"></div>
-            <p>Loading 3D Model...</p>
-          </div>
-        )}
-      </div>
     </div>
   );
 };

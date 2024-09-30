@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './FileInput.css';
-import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 
 const tips = [
   "Tip: Don't forget to water your plants!",
@@ -19,7 +16,6 @@ const tips = [
 
 const FileInput = () => {
   const [imageSrc, setImageSrc] = useState(null);
-  const [modelFiles, setModelFiles] = useState({ obj: null, mtl: null });
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentTip, setCurrentTip] = useState('');
   const [videoEnded, setVideoEnded] = useState(false);
@@ -49,7 +45,7 @@ const FileInput = () => {
     setVideoEnded(true);
   };
 
-  const handleImageChange = async (event) => {
+  const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
@@ -61,59 +57,24 @@ const FileInput = () => {
       setIsProcessing(true);
       setError(null);
 
-      // Simulate processing delay
+      // Simulate processing time
       setTimeout(() => {
-        // Create a simple cube as a placeholder 3D model
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-
-        // Convert the cube to OBJ format
-        const exporter = new THREE.OBJExporter();
-        const objData = exporter.parse(cube);
-
-        // Create a simple MTL content
-        const mtlData = `
-newmtl Material
-Ns 323.999994
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-        `.trim();
-
-        // Create Blob URLs for the OBJ and MTL data
-        const objBlob = new Blob([objData], { type: 'text/plain' });
-        const mtlBlob = new Blob([mtlData], { type: 'text/plain' });
-
-        setModelFiles({
-          obj: URL.createObjectURL(objBlob),
-          mtl: URL.createObjectURL(mtlBlob)
-        });
-
         setIsProcessing(false);
         setVideoEnded(true);
-      }, 9000); // Simulating 9 seconds of processing time
+      }, 9000);
     } else {
       setError('Please upload a valid image file.');
     }
   };
 
   const handleDownloadModel = (fileType) => {
-    const fileUrl = modelFiles[fileType];
-    if (fileUrl) {
-      const link = document.createElement('a');
-      link.href = fileUrl;
-      link.download = `model.${fileType}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else {
-      setError(`No ${fileType.toUpperCase()} file available for download.`);
-    }
+    const fileUrl = `/assets/uploads/${fileType === 'obj' ? 'house.obj' : 'house.mtl'}`;
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = `model.${fileType}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -145,7 +106,7 @@ illum 2
               onTimeUpdate={handleVideoTimeUpdate}
               onEnded={handleVideoEnd}
             >
-              <source src="./assets/sample_video.mp4" type="video/mp4" />
+              <source src="/assets/sample_video.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
             <div className="processing-tips">
