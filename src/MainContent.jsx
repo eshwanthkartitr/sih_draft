@@ -193,7 +193,7 @@ const MainContent = () => {
           <img className="image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRv7dDEpXoR1_z_Tu1z6vIshqz6K3loYcAnnA&s" alt="Image 1" />
         </div>
         <div className="card">
-          <img className="image" src="https://wpmedia.roomsketcher.com/content/uploads/2022/01/27111154/Profile_Black-2D_Floor_Plan.jpg" alt="Image 2" />
+          <img className="image" src="https://d11ovvaxdf1k5p.cloudfront.net/Black_White_Service_087e3f349c.webp" alt="Image 2" />
         </div>
         <div className="card">
           <img className="image" src="https://5.imimg.com/data5/DC/JK/KX/ANDROID-110649032/product-jpeg-500x500.jpg" alt="Image 3" />
@@ -202,7 +202,7 @@ const MainContent = () => {
           <img className="image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6qFnC-wljMBOpqwozJ25FlF1OrQPx2m7TzA&s" alt="Image 4" />
         </div>
         <div className="card">
-          <img className="image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoGrUKiFTzS1orStk5Fymcd9OdH_YDx5RLiA&s" alt="Image 5" />
+          <img className="image" src="https://img.freepik.com/premium-photo/photo-construction-blueprint-plans-high-quality-details-8k-full-ultra-hd-ar-169-job-id-e7b4b3ee3fe4419ea287c042fb442914_1056572-35988.jpg" alt="Image 5" />
         </div>
       </div>
       <div className="arrow" style={{ opacity: 0 }}>→</div>

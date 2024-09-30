@@ -61,7 +61,7 @@ const FileInput = () => {
       setTimeout(() => {
         setIsProcessing(false);
         setVideoEnded(true);
-      }, 10000);
+      }, 13000);
     } else {
       setError('Please upload a valid image file.');
     }
