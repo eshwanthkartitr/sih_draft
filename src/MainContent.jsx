@@ -14,16 +14,92 @@ import houseObj from './assets/house.obj?url';
 const MainContent = () => {
   const containerRef = useRef(null);
   const modelRef = useRef(null);
+  const sceneRef = useRef(null);
+  const cameraRef = useRef(null);
+  const rendererRef = useRef(null);
   const isDragging = useRef(false);
   const previousMousePosition = useRef({ x: 0, y: 0 });
   const navigate = useNavigate();
-  const cameraRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   useEffect(() => {
     createIcons({ icons });
+    initScene();
+    animateCards();
+    loadModel();
 
-    // Ensure elements are present before starting the animation
+    return cleanup;
+  }, []);
+
+  const initScene = () => {
+    sceneRef.current = new THREE.Scene();
+    cameraRef.current = new THREE.PerspectiveCamera(75, window.innerWidth / 2 / window.innerHeight, 0.1, 1000);
+    rendererRef.current = new THREE.WebGLRenderer({ alpha: true });
+    rendererRef.current.setSize(window.innerWidth / 2, window.innerHeight);
+
+    if (containerRef.current) {
+      containerRef.current.appendChild(rendererRef.current.domElement);
+    }
+
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    sceneRef.current.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(1, 1, 1).normalize();
+    sceneRef.current.add(directionalLight);
+
+    cameraRef.current.position.z = 50;
+  };
+
+  const loadModel = () => {
+    const manager = new THREE.LoadingManager();
+    manager.onProgress = (url, itemsLoaded, itemsTotal) => {
+      setLoadingProgress((itemsLoaded / itemsTotal) * 100);
+    };
+
+    const mtlLoader = new MTLLoader(manager);
+    mtlLoader.load(houseMtl, (materials) => {
+      materials.preload();
+      const objLoader = new OBJLoader(manager);
+      objLoader.setMaterials(materials);
+      objLoader.load(houseObj, onModelLoad, onProgress, onError);
+    });
+  };
+
+  const onModelLoad = (object) => {
+    modelRef.current = object;
+    sceneRef.current.add(object);
+    object.position.set(0, 0, 0);
+    object.scale.set(0.05, 0.05, 0.05);
+
+    gsap.to(object.rotation, {
+      y: Math.PI * 2,
+      duration: 20,
+      ease: "none",
+      repeat: -1
+    });
+
+    setIsLoading(false);
+    animate();
+  };
+
+  const onProgress = (xhr) => {
+    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+  };
+
+  const onError = (error) => {
+    console.error('An error happened', error);
+    setIsLoading(false);
+  };
+
+  const animate = () => {
+    if (!sceneRef.current || !cameraRef.current || !rendererRef.current) return;
+    requestAnimationFrame(animate);
+    rendererRef.current.render(sceneRef.current, cameraRef.current);
+  };
+
+  const animateCards = () => {
     const cards = document.querySelectorAll('.card');
     if (cards.length > 0) {
       gsap.fromTo(
@@ -32,121 +108,66 @@ const MainContent = () => {
         { scale: 1, opacity: 1, x: 0, y: 0, stagger: 0.1, ease: "elastic.out(1, 0.8)", duration: 1 }
       );
     }
+  };
 
-    // Initialize 3D scene
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-    cameraRef.current = camera;
-    const renderer = new THREE.WebGLRenderer({ alpha: true }); // Enable transparency
-    renderer.setSize(window.innerWidth / 2, window.innerHeight); // Adjust size to fit right side
-
-    if (containerRef.current) {
-      containerRef.current.appendChild(renderer.domElement);
+  const cleanup = () => {
+    if (containerRef.current && rendererRef.current) {
+      containerRef.current.removeChild(rendererRef.current.domElement);
     }
+    window.removeEventListener('mousedown', onMouseDown);
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
+    window.removeEventListener('mouseout', onMouseOut);
+    window.removeEventListener('wheel', onWheel);
+  };
 
-    // Add lighting
-    const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
-    scene.add(ambientLight);
+  useEffect(() => {
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('mouseout', onMouseOut);
+    window.addEventListener('wheel', onWheel);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(1, 1, 1).normalize();
-    scene.add(directionalLight);
-
-    // Load the MTL file
-    const mtlLoader = new MTLLoader();
-    mtlLoader.load(houseMtl, (materials) => {
-      materials.preload();
-
-      // Load the OBJ file
-      const objLoader = new OBJLoader();
-      objLoader.setMaterials(materials);
-      objLoader.load(
-        houseObj,
-        (object) => {
-          modelRef.current = object;
-          scene.add(object);
-          object.position.set(0, 0, 0);
-          object.scale.set(0.05, 0.05, 0.05); // Scale the model
-
-          // Add simple rotation animation to the model
-          gsap.to(object.rotation, {
-            y: Math.PI * 2,
-            duration: 20,
-            ease: "none",
-            repeat: -1
-          });
-
-          setIsLoading(false); // Set loading to false when the model is loaded
-        },
-        (xhr) => {
-          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        (error) => {
-          console.error('An error happened', error);
-          setIsLoading(false); // Set loading to false even if there's an error
-        }
-      );
-    });
-
-    camera.position.z = 50; // Adjust camera position to fit the scaled model
-
-    const animate = () => {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
+    return () => {
+      cleanup();
     };
+  }, []);
 
-    animate();
+  const onMouseDown = (event) => {
+    isDragging.current = true;
+    previousMousePosition.current = { x: event.clientX, y: event.clientY };
+  };
 
-    // Event listeners for interaction
-    const onMouseDown = (event) => {
-      isDragging.current = true;
-      previousMousePosition.current = {
-        x: event.clientX,
-        y: event.clientY
+  const onMouseMove = (event) => {
+    if (isDragging.current && modelRef.current) {
+      const deltaMove = {
+        x: event.clientX - previousMousePosition.current.x,
+        y: event.clientY - previousMousePosition.current.y
       };
-    };
 
-    const onMouseMove = (event) => {
-      if (isDragging.current && modelRef.current) {
-        const deltaMove = {
-          x: event.clientX - previousMousePosition.current.x,
-          y: event.clientY - previousMousePosition.current.y
-        };
+      const rotationSpeed = 0.005;
+      modelRef.current.rotation.y += deltaMove.x * rotationSpeed;
+      modelRef.current.rotation.x += deltaMove.y * rotationSpeed;
 
-        const rotationSpeed = 0.005;
-        modelRef.current.rotation.y += deltaMove.x * rotationSpeed;
-        modelRef.current.rotation.x += deltaMove.y * rotationSpeed;
-
-        previousMousePosition.current = {
-          x: event.clientX,
-          y: event.clientY
-        };
-      }
-    };
-
-    const onMouseUp = () => {
-      isDragging.current = false;
-    };
-
-    const onMouseOut = () => {
-      isDragging.current = false;
-    };
-
-    const onWheel = (event) => {
-      if (cameraRef.current) {
-        cameraRef.current.position.z += event.deltaY * 0.01;
-      }
-    };
-
-    if (containerRef.current) {
-      containerRef.current.addEventListener('mousedown', onMouseDown);
-      containerRef.current.addEventListener('mousemove', onMouseMove);
-      containerRef.current.addEventListener('mouseup', onMouseUp);
-      containerRef.current.addEventListener('mouseout', onMouseOut);
-      containerRef.current.addEventListener('wheel', onWheel);
+      previousMousePosition.current = { x: event.clientX, y: event.clientY };
     }
+  };
 
-    // Move images to the left after 2 seconds
+  const onMouseUp = () => {
+    isDragging.current = false;
+  };
+
+  const onMouseOut = () => {
+    isDragging.current = false;
+  };
+
+  const onWheel = (event) => {
+    if (cameraRef.current) {
+      cameraRef.current.position.z += event.deltaY * 0.01;
+    }
+  };
+
+  useEffect(() => {
     setTimeout(() => {
       gsap.to('.cards-container', {
         x: '-400%',
@@ -162,17 +183,6 @@ const MainContent = () => {
       gsap.to('.arrow', { transform: 'translateY(-60%)', duration: 1 });
       gsap.to(containerRef.current, { transform: 'translateX(500%)', duration: 1, opacity: 1 });
     }, 2000);
-
-    return () => {
-      if (containerRef.current) {
-        containerRef.current.removeChild(renderer.domElement);
-        containerRef.current.removeEventListener('mousedown', onMouseDown);
-        containerRef.current.removeEventListener('mousemove', onMouseMove);
-        containerRef.current.removeEventListener('mouseup', onMouseUp);
-        containerRef.current.removeEventListener('mouseout', onMouseOut);
-        containerRef.current.removeEventListener('wheel', onWheel);
-      }
-    };
   }, []);
 
   const handleArrowClick = () => {
@@ -207,6 +217,14 @@ const MainContent = () => {
       </div>
       <div className="arrow" style={{ opacity: 0 }}>→</div>
       <div className="down-arrow" onClick={handleArrowClick} style={{ opacity: 1, cursor: 'pointer', position: 'absolute', bottom: '10px', fontSize: '2em' }}>↓</div>
+      <div ref={containerRef} className="three-container" style={{ opacity: 0 }}>
+        {isLoading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+            <p>Loading 3D Model: {loadingProgress.toFixed(2)}%</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
